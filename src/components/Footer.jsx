@@ -26,7 +26,7 @@ const Footer = () => {
           {NAV_ITEMS.map((item) => (
             <li key={item.href}>
               <button
-                onClick={() => document.querySelector(item.href)?.scrollIntoView({ behavior: "smooth" })}
+                onClick={() => (item.external ? window.open(item.href, "_blank", "noopener,noreferrer") : document.querySelector(item.href)?.scrollIntoView({ behavior: "smooth" }))}
                 className="hover:text-signal-violet dark:hover:text-signal-cyan transition-colors"
               >
                 {item.name}

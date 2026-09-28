@@ -1,100 +1,88 @@
-import React, { useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import { FiGithub, FiExternalLink } from "react-icons/fi";
-import { PROJECTS, PROJECT_CATEGORIES } from "../data/portfolio";
+import React from "react";
+import { motion } from "motion/react";
+import { FiGithub, FiExternalLink, FiCheck, FiTool } from "react-icons/fi";
+import { PROJECTS } from "../data/portfolio";
 import SectionHeading from "./SectionHeading";
 
-const ProjectCard = ({ project }) => (
-  <motion.div
-    layout
-    initial={{ opacity: 0, y: 30 }}
-    animate={{ opacity: 1, y: 0 }}
-    exit={{ opacity: 0, y: -20 }}
-    transition={{ duration: 0.4 }}
-    whileHover={{ y: -8 }}
-    className="glass glow-border rounded-2xl overflow-hidden flex flex-col"
-  >
-    <div className="relative h-44 overflow-hidden">
-      <img
-        src={project.image}
-        alt={project.title}
-        loading="lazy"
-        className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
-      />
-      <span className="absolute top-3 left-3 font-mono text-[11px] px-2 py-1 rounded-full bg-void/70 text-signal-cyan backdrop-blur-sm">
-        {project.category}
-      </span>
-    </div>
-    <div className="p-5 flex flex-col flex-1">
-      <h3 className="font-display font-semibold text-text-primary mb-2">{project.title}</h3>
-      <p className="text-sm text-text-secondary leading-relaxed mb-4 flex-1">{project.description}</p>
-      <div className="flex flex-wrap gap-2 mb-5">
+const linkBtn =
+  "flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium";
+
+const ProjectCard = ({ project, index }) => {
+  const inDev = project.status === "In Development";
+  return (
+    <motion.article
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.15 }}
+      transition={{ duration: 0.5, delay: (index % 2) * 0.08 }}
+      whileHover={{ y: -6 }}
+      className="glass glow-border rounded-2xl p-6 flex flex-col"
+    >
+      <div className="flex items-start justify-between gap-3 mb-3">
+        <h3 className="font-display text-xl font-semibold text-text-primary">{project.title}</h3>
+        <span
+          className={`shrink-0 inline-flex items-center gap-1 font-mono text-[11px] px-2.5 py-1 rounded-full border ${
+            inDev
+              ? "border-signal-amber/50 text-signal-amber"
+              : "border-emerald-400/50 text-emerald-500 dark:text-emerald-400"
+          }`}
+        >
+          {inDev ? <FiTool size={11} /> : <FiCheck size={11} />} {project.status}
+        </span>
+      </div>
+
+      <p className="text-sm text-text-secondary leading-relaxed mb-4">{project.description}</p>
+
+      {project.highlights && (
+        <ul className="mb-4 space-y-1.5 text-sm text-text-secondary">
+          {project.highlights.map((h) => (
+            <li key={h} className="flex gap-2">
+              <span className="text-signal-cyan">▹</span>
+              {h}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="flex flex-wrap gap-2 mb-5 flex-1 content-start">
         {project.tech.map((t) => (
           <span key={t} className="font-mono text-[11px] px-2 py-1 rounded-md bg-surface-raised text-text-secondary">
             {t}
           </span>
         ))}
       </div>
-      <div className="flex gap-3">
-        <a
-          href={project.github}
-          target="_blank"
-          rel="noopener noreferrer"
-          data-cursor-hover
-          className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full glass text-sm font-medium text-text-primary hover:border-signal-violet/50"
-        >
-          <FiGithub size={15} /> GitHub
-        </a>
-        <a
-          href={project.live}
-          target="_blank"
-          rel="noopener noreferrer"
-          data-cursor-hover
-          className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-signal text-sm font-medium text-white"
-        >
-          <FiExternalLink size={15} /> Live Demo
-        </a>
-      </div>
-    </div>
-  </motion.div>
-);
 
-const Projects = () => {
-  const [filter, setFilter] = useState("All");
-  const filtered = filter === "All" ? PROJECTS : PROJECTS.filter((p) => p.category === filter);
-
-  return (
-    <section id="projects" className="py-24 px-5 sm:px-8">
-      <div className="max-w-6xl mx-auto">
-        <SectionHeading command="ls ~/projects" title="Featured Projects" />
-
-        <div className="flex flex-wrap gap-2 mb-10">
-          {PROJECT_CATEGORIES.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setFilter(cat)}
-              data-cursor-hover
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                filter === cat
-                  ? "bg-signal text-white"
-                  : "glass text-text-secondary hover:text-text-primary"
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
+      {(project.github || project.live) ? (
+        <div className="flex gap-3">
+          {project.github && (
+            <a href={project.github} target="_blank" rel="noopener noreferrer" data-cursor-hover className={`${linkBtn} glass text-text-primary hover:border-signal-violet/50`}>
+              <FiGithub size={15} /> GitHub
+            </a>
+          )}
+          {project.live && (
+            <a href={project.live} target="_blank" rel="noopener noreferrer" data-cursor-hover className={`${linkBtn} bg-signal text-white`}>
+              <FiExternalLink size={15} /> Live Demo
+            </a>
+          )}
         </div>
-
-        <motion.div layout className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <AnimatePresence mode="popLayout">
-            {filtered.map((project) => (
-              <ProjectCard key={project.id} project={project} />
-            ))}
-          </AnimatePresence>
-        </motion.div>
-      </div>
-    </section>
+      ) : (
+        <p className="text-xs text-text-muted font-mono">Work in progress — not yet deployed.</p>
+      )}
+    </motion.article>
   );
 };
+
+const Projects = () => (
+  <section id="projects" className="py-24 px-5 sm:px-8">
+    <div className="max-w-6xl mx-auto">
+      <SectionHeading command="ls ~/projects" title="Featured Projects" />
+      <div className="grid md:grid-cols-2 gap-6">
+        {PROJECTS.map((p, i) => (
+          <ProjectCard key={p.id} project={p} index={i} />
+        ))}
+      </div>
+    </div>
+  </section>
+);
 
 export default Projects;

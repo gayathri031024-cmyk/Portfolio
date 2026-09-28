@@ -1,27 +1,24 @@
 import React, { useState } from "react";
 import { motion } from "motion/react";
-import { FiMail, FiPhone, FiMapPin, FiGithub, FiLinkedin, FiSend, FiCheck } from "react-icons/fi";
+import { FiMail, FiMapPin, FiGithub, FiLinkedin, FiSend } from "react-icons/fi";
 import { PERSONAL_INFO } from "../data/portfolio";
 import SectionHeading from "./SectionHeading";
 
 const Contact = () => {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
-  const [status, setStatus] = useState("idle"); // idle | sent
-
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
+  // No backend: this opens the visitor's own email app with the message pre-filled.
+  // Nothing is sent until they press Send there, so we never claim delivery.
   const handleSubmit = (e) => {
     e.preventDefault();
-    // No backend wired up — this simply confirms receipt in the UI.
-    // Swap in your form endpoint (e.g. Formspree, EmailJS) here.
-    setStatus("sent");
-    setForm({ name: "", email: "", message: "" });
-    setTimeout(() => setStatus("idle"), 4000);
+    const subject = encodeURIComponent(`Portfolio enquiry from ${form.name}`);
+    const body = encodeURIComponent(`${form.message}\n\n— ${form.name} (${form.email})`);
+    window.location.href = `mailto:${PERSONAL_INFO.email}?subject=${subject}&body=${body}`;
   };
 
   const contactItems = [
     { icon: FiMail, label: "Email", value: PERSONAL_INFO.email, href: PERSONAL_INFO.social.email },
-    { icon: FiPhone, label: "Phone", value: PERSONAL_INFO.phone, href: `tel:${PERSONAL_INFO.phone.replace(/\s/g, "")}` },
     { icon: FiMapPin, label: "Location", value: PERSONAL_INFO.location, href: null },
     { icon: FiLinkedin, label: "LinkedIn", value: "Connect with me", href: PERSONAL_INFO.social.linkedin },
     { icon: FiGithub, label: "GitHub", value: "View my repositories", href: PERSONAL_INFO.social.github },
@@ -42,7 +39,7 @@ const Contact = () => {
           >
             <p className="text-text-secondary leading-relaxed mb-2">
               Have a project, an opportunity, or just want to talk about AI and full-stack builds?
-              My inbox is open.
+              Reach me on LinkedIn, GitHub or email.
             </p>
             {contactItems.map((item) => {
               const content = (
@@ -113,6 +110,7 @@ const Contact = () => {
                 className="w-full px-4 py-3 rounded-xl bg-surface-raised border border-border-soft text-text-primary placeholder:text-text-muted outline-none focus:border-signal-violet transition-colors resize-none"
               />
             </div>
+            <p className="text-xs text-text-muted">This opens your email app with the message pre-filled; nothing is sent until you press Send there.</p>
             <motion.button
               type="submit"
               whileHover={{ scale: 1.02 }}
@@ -120,15 +118,7 @@ const Contact = () => {
               data-cursor-hover
               className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-signal text-white font-medium shadow-lg shadow-signal-violet/30"
             >
-              {status === "sent" ? (
-                <>
-                  <FiCheck /> Message Sent
-                </>
-              ) : (
-                <>
-                  <FiSend /> Send Message
-                </>
-              )}
+              <FiSend /> Compose Email
             </motion.button>
           </motion.form>
         </div>

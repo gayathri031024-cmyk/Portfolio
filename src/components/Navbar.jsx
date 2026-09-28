@@ -17,7 +17,7 @@ const Navbar = () => {
   }, []);
 
   useEffect(() => {
-    const sections = NAV_ITEMS.map((item) => document.querySelector(item.href)).filter(Boolean);
+    const sections = NAV_ITEMS.filter((i) => !i.external).map((item) => document.querySelector(item.href)).filter(Boolean);
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -30,8 +30,9 @@ const Navbar = () => {
     return () => observer.disconnect();
   }, []);
 
-  const handleNav = (href) => {
+  const handleNav = (href, external) => {
     setOpen(false);
+    if (external) { window.open(href, "_blank", "noopener,noreferrer"); return; }
     document.querySelector(href)?.scrollIntoView({ behavior: "smooth" });
   };
 
@@ -55,7 +56,7 @@ const Navbar = () => {
           {NAV_ITEMS.map((item) => (
             <li key={item.href}>
               <button
-                onClick={() => handleNav(item.href)}
+                onClick={() => handleNav(item.href, item.external)}
                 data-cursor-hover
                 className={`px-3 py-2 rounded-full transition-colors ${
                   active === item.href
@@ -114,7 +115,7 @@ const Navbar = () => {
               {NAV_ITEMS.map((item) => (
                 <li key={item.href}>
                   <button
-                    onClick={() => handleNav(item.href)}
+                    onClick={() => handleNav(item.href, item.external)}
                     className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium ${
                       active === item.href
                         ? "text-signal-violet dark:text-signal-cyan bg-surface-raised"
